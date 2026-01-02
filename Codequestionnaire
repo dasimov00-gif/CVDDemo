@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Questionnaire – PHQ-9 & GAD-7</title>
+  <meta name="description" content="Questionnaire PHQ-9 et GAD-7 (calcul local, sans stockage serveur)." />
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#111a2e;
+      --card2:#0f1730;
+      --text:#e9eefc;
+      --muted:#aab7e6;
+      --accent:#8ce0c3;
+      --warn:#ffd166;
+      --danger:#ff5c7a;
+      --line: rgba(255,255,255,.10);
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Helvetica,Arial;
+      background:
+        radial-gradient(1200px 700px at 18% 10%, rgba(140,224,195,.12), transparent 60%),
+        radial-gradient(900px 600px at 85% 25%, rgba(255,209,102,.10), transparent 55%),
+        radial-gradient(1100px 650px at 40% 90%, rgba(255,92,122,.08), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
+    a{color:var(--accent)}
+    header{
+      padding: 28px 18px 10px;
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing:.2px;
+    }
+    .subtitle{
+      color:var(--muted);
+      line-height:1.5;
+      margin:0 0 18px;
+      max-width: 78ch;
+    }
+    .banner{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      box-shadow: var(--shadow);
+      margin: 14px 0 0;
+    }
+    .banner strong{color:#fff}
+    .container{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 12px 18px 40px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 16px;
+      align-items:start;
+    }
+    @media (max-width: 960px){
+      .grid{grid-template-columns: 1fr}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .head{
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      background: rgba(0,0,0,.10);
+    }
+    .card .head h2{
+      margin:0;
+      font-size: 16px;
+      letter-spacing:.2px;
+    }
+    .card .body{padding: 14px 16px}
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 560px){
+      .row{grid-template-columns:1fr}
+    }
+    label{display:block; font-size: 12px; color:var(--muted); margin-bottom:6px}
+    input[type="text"], input[type="datetime-local"]{
+      width:100%;
+      padding: 10px 11px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline: none;
+    }
+    input[type="text"]::placeholder{color: rgba(170,183,230,.65)}
+    .tabs{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(0,0,0,.08);
+    }
+    .tab{
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.15);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-size: 13px;
+      user-select:none;
+    }
+    .tab.active{
+      border-color: rgba(140,224,195,.55);
+      box-shadow: 0 0 0 3px rgba(140,224,195,.12);
+    }
+    .section{display:none}
+    .section.active{display:block}
+    .q{
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .q:last-child{border-bottom:none}
+    .q-title{
+      margin:0 0 8px;
+      font-size: 14px;
+      line-height:1.35;
+    }
+    .choices{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      cursor:pointer;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .pill input{accent-color: var(--accent)}
+    .pill span{color: var(--text)}
+    .kpi{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+    @media (max-width: 560px){
+      .kpi{grid-template-columns:1fr}
+    }
+    .kpi .box{
+      background: rgba(0,0,0,.16);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .kpi .box .v{
+      font-size: 20px;
+      margin-top:4px;
+      color:#fff;
+    }
+    .muted{color:var(--muted)}
+    .alert{
+      border:1px solid rgba(255,255,255,.12);
+      border-left: 6px solid var(--warn);
+      background: rgba(255,209,102,.08);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-top: 12px;
+      color: #fff;
+    }
+    .alert.danger{
+      border-left-color: var(--danger);
+      background: rgba(255,92,122,.10);
+    }
+    textarea{
+      width:100%;
+      min-height: 170px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      resize: vertical;
+      outline:none;
+      line-height:1.4;
+    }
+    .btns{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 12px;
+    }
+    button{
+      border:none;
+      cursor:pointer;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(140,224,195,.16);
+      color: var(--text);
+      border: 1px solid rgba(140,224,195,.35);
+    }
+    button.secondary{
+      background: rgba(255,255,255,.06);
+      border-color: var(--line);
+    }
+    button.danger{
+      background: rgba(255,92,122,.14);
+      border-color: rgba(255,92,122,.35);
+    }
+    .photos{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top: 10px;
+    }
+    .photos img{
+      width:100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      filter: saturate(1.05) contrast(1.02);
+    }
+    footer{
+      max-width: 1120px;
+      margin: 14px auto 0;
+      padding: 0 18px 28px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Impression */
+    @media print{
+      body{background:#fff;color:#000}
+      .tabs, .btns, .photos, .banner{display:none !important}
+      .card{box-shadow:none;border:1px solid #ddd}
+      textarea{border:1px solid #ddd;background:#fff;color:#000}
+      input{border:1px solid #ddd;background:#fff;color:#000}
+      .alert{border:1px solid #ccc;background:#f5f5f5;color:#000}
+      header, footer{color:#000}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>🧠 Questionnaire PHQ-9 & GAD-7</h1>
+  <p class="subtitle">
+    Calcul <strong>local</strong> dans ton navigateur (pas d’envoi de données par le questionnaire).
+    Pour minimiser les risques RGPD, utilise un identifiant anonymisé (initiales ou code).
+  </p>
+  <div class="banner">
+    <div>⚠️</div>
+    <div>
+      <strong>Outil de repérage, non diagnostique.</strong><br>
+      En cas de danger immédiat (risque suicidaire/hétéro-agressif), contacter les urgences (15/112 en France).
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="grid">
+    <!-- Colonne gauche: formulaire -->
+    <div class="card">
+      <div class="head">
+        <h2>📝 Saisie</h2>
+        <div class="muted" style="font-size:12px">Période: 2 dernières semaines</div>
+      </div>
+
+      <div class="body">
+        <div class="row">
+          <div>
+            <label>Identifiant patient (anonyme)</label>
+            <input id="patientId" type="text" placeholder="ex: DC-2026-001" />
+          </div>
+          <div>
+            <label>Contexte</label>
+            <input id="context" type="text" placeholder="consultation / suivi / urgence…" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <div>
+            <label>Clinicien (optionnel)</label>
+            <input id="clinician" type="text" placeholder="nom / initiales" />
+          </div>
+          <div>
+            <label>Date</label>
+            <input id="date" type="datetime-local" />
+          </div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" data-tab="phq">PHQ-9</div>
+        <div class="tab" data-tab="gad">GAD-7</div>
+      </div>
+
+      <div class="body">
+        <section id="tab-phq" class="section active"></section>
+        <section id="tab-gad" class="section"></section>
+
+        <div class="btns">
+          <button id="btnCalc">🧮 Calculer / Mettre à jour</button>
+          <button class="secondary" id="btnPrint">🖨️ Imprimer</button>
+          <button class="secondary" id="btnJson">⬇️ Export JSON</button>
+          <button class="danger" id="btnReset">🧽 Nouvelle consultation</button>
+        </div>
+
+        <div class="photos" aria-label="Photos de sérénité">
+          <img alt="Mer calme" src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=70">
+          <img alt="Forêt brumeuse" src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=70">
+          <img alt="Montagnes paisibles" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=70">
+          <img alt="Lac au lever du soleil" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=70">
+        </div>
+
+        <p class="muted" style="margin-top:10px">
+          Astuce: si tu veux des images “offline”, je peux te donner une version avec images locales (dossier <code>/assets</code>).
+        </p>
+      </div>
+    </div>
+
+    <!-- Colonne droite: résultats -->
+    <div class="card">
+      <div class="head">
+        <h2>📊 Résultats</h2>
+        <div class="muted" style="font-size:12px">Aucun stockage automatique</div>
+      </div>
+
+      <div class="body">
+        <div class="kpi">
+          <div class="box">
+            <div class="muted">PHQ-9</div>
+            <div class="v" id="phqScore">0/27</div>
+            <div class="muted" id="phqSev">Minimal</div>
+          </div>
+          <div class="box">
+            <div class="muted">GAD-7</div>
+            <div class="v" id="gadScore">0/21</div>
+            <div class="muted" id="gadSev">Minimal</div>
+          </div>
+          <div class="box">
+            <div class="muted">Alerte</div>
+            <div class="v" id="flagBox">—</div>
+            <div class="muted">Item PHQ-9 #9</div>
+          </div>
+        </div>
+
+        <div id="alerts"></div>
+
+        <div style="margin-top:14px">
+          <label>Note clinique (brouillon)</label>
+          <textarea id="note" readonly></textarea>
+        </div>
+
+        <div style="margin-top:10px" class="muted">
+          Repères usuels: PHQ-9 (5,10,15,20) et GAD-7 (5,10,15) pour sévérité.
+          Interprétation clinique indispensable.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>
+    ⚖️ Important: même si cette page ne stocke pas les réponses, un hébergeur peut conserver des logs techniques (IP, accès).
+    Pour des usages sensibles, privilégier une solution interne/établissement conforme.
+  </div>
+</footer>
+
+<script>
+  // ========= Données questionnaire =========
+  const PHQ9 = [
+    {key:"phq1", text:"Peu d’intérêt ou de plaisir à faire les choses"},
+    {key:"phq2", text:"Se sentir abattu(e), déprimé(e) ou sans espoir"},
+    {key:"phq3", text:"Difficultés d’endormissement, réveils fréquents ou sommeil excessif"},
+    {key:"phq4", text:"Fatigue ou manque d’énergie"},
+    {key:"phq5", text:"Manque d’appétit ou excès alimentaire"},
+    {key:"phq6", text:"Mauvaise opinion de soi, se sentir nul(le) ou avoir déçu sa famille"},
+    {key:"phq7", text:"Difficultés de concentration (lecture, TV, travail)"},
+    {key:"phq8", text:"Ralentissement ou agitation remarqués par l’entourage"},
+    {key:"phq9", text:"Pensées que vous seriez mieux mort(e) ou envie de vous faire du mal"}
+  ];
+
+  const GAD7 = [
+    {key:"gad1", text:"Nervosité, anxiété ou tension"},
+    {key:"gad2", text:"Incapacité à arrêter de s’inquiéter ou à contrôler ses inquiétudes"},
+    {key:"gad3", text:"S’inquiéter excessivement à propos de différentes choses"},
+    {key:"gad4", text:"Difficulté à se détendre"},
+    {key:"gad5", text:"Agitation (difficile de rester tranquille)"},
+    {key:"gad6", text:"Devenir facilement contrarié(e) ou irritable"},
+    {key:"gad7", text:"Peur que quelque chose de terrible arrive"}
+  ];
+
+  const SCALE_0_3 = [
+    {v:0, label:"0 • Pas du tout"},
+    {v:1, label:"1 • Plusieurs jours"},
+    {v:2, label:"2 • Plus de la moitié des jours"},
+    {v:3, label:"3 • Presque tous les jours"}
+  ];
+
+  // ========= Helpers sévérité =========
+  function phqSeverity(score){
+    if (score <= 4) return "Minimal";
+    if (score <= 9) return "Léger";
+    if (score <= 14) return "Modéré";
+    if (score <= 19) return "Modérément sévère";
+    return "Sévère";
+  }
+  function gadSeverity(score){
+    if (score <= 4) return "Minimal";
+    if (score <= 9) return "Léger";
+    if (score <= 14) return "Modéré";
+    return "Sévère";
+  }
+
+  // ========= UI build =========
+  function buildSection(containerId, items, prefix){
+    const root = document.getElementById(containerId);
+    root.innerHTML = "";
+    items.forEach((it, idx) => {
+      const div = document.createElement("div");
+      div.className = "q";
+      div.innerHTML = `
+        <p class="q-title"><strong>${idx+1}.</strong> ${it.text}</p>
+        <div class="choices">
+          ${SCALE_0_3.map(opt => `
+            <label class="pill">
+              <input type="radio" name="${prefix}_${it.key}" value="${opt.v}" ${opt.v===0 ? "checked" : ""}>
+              <span>${opt.label}</span>
+            </label>
+          `).join("")}
+        </div>
+      `;
+      root.appendChild(div);
+    });
+  }
+
+  function getScore(items, prefix){
+    let score = 0;
+    const answers = {};
+    items.forEach(it => {
+      const name = `${prefix}_${it.key}`;
+      const checked = document.querySelector(`input[name="${name}"]:checked`);
+      const v = checked ? parseInt(checked.value, 10) : 0;
+      answers[it.key] = v;
+      score += v;
+    });
+    return {score, answers};
+  }
+
+  function setNow(){
+    const el = document.getElementById("date");
+    if (!el.value){
+      const d = new Date();
+      // format yyyy-MM-ddTHH:mm
+      const pad = (n)=> String(n).padStart(2,"0");
+      el.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+  }
+
+  // ========= Résultats =========
+  function computeAndRender(){
+    const phq = getScore(PHQ9, "phq");
+    const gad = getScore(GAD7, "gad");
+
+    const phqScore = phq.score;
+    const gadScore = gad.score;
+
+    const phqSev = phqSeverity(phqScore);
+    const gadSev = gadSeverity(gadScore);
+
+    const item9 = phq.answers.phq9 ?? 0;
+    const item9Flag = item9 > 0;
+
+    // KPIs
+    document.getElementById("phqScore").textContent = `${phqScore}/27`;
+    document.getElementById("phqSev").textContent = phqSev;
+    document.getElementById("gadScore").textContent = `${gadScore}/21`;
+    document.getElementById("gadSev").textContent = gadSev;
+    document.getElementById("flagBox").textContent = item9Flag ? "🚩" : "—";
+
+    // Alerts
+    const alerts = document.getElementById("alerts");
+    alerts.innerHTML = "";
+    if (item9Flag){
+      const a = document.createElement("div");
+      a.className = "alert danger";
+      a.innerHTML = `<strong>🚩 PHQ-9 Item 9 &gt; 0</strong><br>
+        À explorer: fréquence, plan, moyens, intention, facteurs protecteurs, mesures de sécurité.`;
+      alerts.appendChild(a);
+    } else {
+      const a = document.createElement("div");
+      a.className = "alert";
+      a.innerHTML = `<strong>✅ PHQ-9 Item 9 = 0</strong><br>
+        Pas de pensée auto-agressive rapportée sur le PHQ-9.`;
+      alerts.appendChild(a);
+    }
+
+    // Note clinique
+    const patientId = document.getElementById("patientId").value.trim() || "N/A";
+    const context = document.getElementById("context").value.trim() || "N/A";
+    const clinician = document.getElementById("clinician").value.trim();
+    const date = document.getElementById("date").value;
+
+    const note = [
+      `Repérage psychique (non diagnostique) | Patient: ${patientId} | Contexte: ${context}${clinician ? " | Clinicien: "+clinician : ""} | Date: ${date || "N/A"}`,
+      `PHQ-9: ${phqScore}/27 (${phqSev}), item9=${item9}${item9Flag ? " (à explorer)" : ""}.`,
+      `GAD-7: ${gadScore}/21 (${gadSev}).`,
+      `À compléter: entretien clinique, ATCD, facteurs risque/protection, plan de suivi/orientation.`
+    ].join("\n");
+
+    document.getElementById("note").value = note;
+
+    // Payload export (local)
+    return {
+      meta: {
+        patient_id: patientId,
+        context,
+        clinician: clinician || null,
+        date: date || null,
+        disclaimer: "Outil de repérage, non diagnostique. Calcul local dans le navigateur."
+      },
+      answers: {
+        phq9_0_3: phq.answers,
+        gad7_0_3: gad.answers
+      },
+      results: {
+        phq9: {score: phqScore, severity: phqSev, item9, item9_flag: item9Flag},
+        gad7: {score: gadScore, severity: gadSev}
+      }
+    };
+  }
+
+  function downloadJSON(payload){
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const patientId = (payload.meta.patient_id || "patient").replace(/[^\w-]+/g,"_");
+    a.href = url;
+    a.download = `questionnaire_phq9_gad7_${patientId}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function resetAll(){
+    if (!confirm("Effacer les réponses et commencer une nouvelle consultation ?")) return;
+    document.getElementById("patientId").value = "";
+    document.getElementById("context").value = "";
+    document.getElementById("clinician").value = "";
+    // reset radios
+    document.querySelectorAll('input[type="radio"]').forEach(r => {
+      if (r.value === "0") r.checked = true;
+    });
+    setNow();
+    computeAndRender();
+  }
+
+  // ========= Tabs =========
+  function initTabs(){
+    const tabs = document.querySelectorAll(".tab");
+    const sections = {
+      phq: document.getElementById("tab-phq"),
+      gad: document.getElementById("tab-gad")
+    };
+
+    tabs.forEach(t => {
+      t.addEventListener("click", () => {
+        tabs.forEach(x => x.classList.remove("active"));
+        t.classList.add("active");
+        const key = t.getAttribute("data-tab");
+        Object.entries(sections).forEach(([k, el]) => {
+          el.classList.toggle("active", k === key);
+        });
+      });
+    });
+  }
+
+  // ========= Init =========
+  buildSection("tab-phq", PHQ9, "phq");
+  buildSection("tab-gad", GAD7, "gad");
+  initTabs();
+  setNow();
+  computeAndRender();
+
+  // Recompute on any change
+  document.addEventListener("change", (e) => {
+    if (e.target && (e.target.matches('input[type="radio"]') || e.target.matches('input[type="text"]') || e.target.matches('input[type="datetime-local"]'))){
+      computeAndRender();
+    }
+  });
+
+  document.getElementById("btnCalc").addEventListener("click", () => computeAndRender());
+  document.getElementById("btnPrint").addEventListener("click", () => window.print());
+  document.getElementById("btnJson").addEventListener("click", () => {
+    const payload = computeAndRender();
+    downloadJSON(payload);
+  });
+  document.getElementById("btnReset").addEventListener("click", resetAll);
+</script>
+</body>
+</html>
+
